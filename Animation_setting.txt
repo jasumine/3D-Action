@@ -1,0 +1,16 @@
+is walk
+is run
+
+run을 shift로 할 경우
+기본걷기가 walk
+
+가만히있다가 걸을경우 isrun true = is walk true
+걷다가 멈출경우 isrun flase = is walk false
+
+기본이 달리기 shift가 걷기 iswalk ture = is run true
+shift를 떼고 걸을경우 iswalk false = in run false
+
+shift를 누르고 걷고 있다가 멈출경우 isrun false = iswalk false (방향키에서 손을떼는거임)
+
+가만히있다가 바로 shift를써서 걸을경우 iswalk true, isrun true
+
