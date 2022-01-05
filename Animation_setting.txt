@@ -1,16 +1,28 @@
-is walk
-is run
+<걷기, 달리기> - iswalk, isrun
+run을 shift로 ,기본걷기가 walk
 
-run을 shift로 할 경우
-기본걷기가 walk
+가만히있다가 걸을경우 isrun true-> is walk true
+걷다가 멈출경우 isrun flase-> is walk false
 
-가만히있다가 걸을경우 isrun true = is walk true
-걷다가 멈출경우 isrun flase = is walk false
+기본이 달리기 shift가 걷기 iswalk ture -> is run true
+shift를 떼고 걸을경우 iswalk false -> in run false
 
-기본이 달리기 shift가 걷기 iswalk ture = is run true
-shift를 떼고 걸을경우 iswalk false = in run false
-
-shift를 누르고 걷고 있다가 멈출경우 isrun false = iswalk false (방향키에서 손을떼는거임)
+shift를 누르고 걷고 있다가 멈출경우 isrun false -> iswalk false (방향키에서 손을떼는거임)
 
 가만히있다가 바로 shift를써서 걸을경우 iswalk true, isrun true
 
+일회성(->)은 parameters - trigger 사용
+<점프> -isjump (즉발적으로 나오도록 0으로 조정)
+아무상태에서나 할 수 있는 Any State에서
+Jump키를 누르면 점프 후 착지Land 에서 exit로 나가면
+entry에 들어가서 상태에따라 가만히있거나 걷거나 달림 
+
+jump가 멈추고 착지할때 land isjump false
+
+<닷지 = 회피> (즉발적으로 나오도록 0으로 조정)
+아무상태에서나 할 수 있는 Any State에서
+Dodge키를 누르고 끝나면 바로 exit로 나가서
+entry에 들어가 상태에 따라 가만히있거나 걷거나 달림
+
+
+나가는 건 has exit time 체크하기
