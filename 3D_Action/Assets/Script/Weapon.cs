@@ -30,12 +30,12 @@ public class Weapon : MonoBehaviour
 
         else if(type == Type.Range && curAmmo>0)
         {
-            curAmmo --;
+            curAmmo -=1;
             StartCoroutine("Shot");
         }
     }
 
-    IEnumerator Swing() //열거형 함수 클래스
+    IEnumerator Swing() //근거리, 열거형 함수 클래스
     {
         //1
         yield return new WaitForSeconds(0.1f); //  0.1f =0.1초 대기 , null=1프레임 대기
@@ -57,7 +57,7 @@ public class Weapon : MonoBehaviour
     //일반함수 : Use() 메인루틴 -> Swing() 서브루틴 -> Use() 메인루틴 
     //코루틴 : Use() 메인루틴 + Swing() 코루틴(Co - Op) ( 같이 실행 ) 
 
-    IEnumerator Shot() //열거형 함수 클래스
+    IEnumerator Shot() //원거리 열거형 함수 클래스
     {
         // #1.총알 발사
         GameObject intantBullet = Instantiate(bullet, bulletPos.position, bulletPos.rotation); //instantiate 인스턴스화 (변수, 위치, 각도)

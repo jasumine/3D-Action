@@ -11,6 +11,7 @@ public class Player2 : MonoBehaviour
     public bool[] hasWeapons;
     public GameObject[] grenades;
     public int hasGrenades; //폭탄
+    public Camera followCamera;
 
     public int ammo; //탄환
     public int coin; //돈
@@ -38,6 +39,7 @@ public class Player2 : MonoBehaviour
     bool isSwap; //구분변수, 무기 교체
     bool isFireReady = true; //구분변수, 공격준비 , 휘두르지않아도 움직이게끔 true
     bool isReload; //구분변수, 장전시간
+    bool isBorder;// ray에 닿은지 안닿은지
 
     Vector3 moveVec; //변수 선언
     Vector3 dodgeVec; //닷지 벡터
@@ -84,7 +86,7 @@ public class Player2 : MonoBehaviour
         jDwon = Input.GetButtonDown("Jump");//점프 누르는 즉시
         gDown = Input.GetButtonDown("Interaction"); //아이템 획득키 누르자마자 바로
         fDown = Input.GetButton("Fire1"); //공격 (마우스 좌클릭)
-        rlDown = Input.GetButtonDown("Reload"); // 재장전
+        rlDown = Input.GetKeyDown(KeyCode.R);
         sDown1 = Input.GetButtonDown("Swap1"); // 1번 무기
         sDown2 = Input.GetButtonDown("Swap2"); // 2번 무기
         sDown3 = Input.GetButtonDown("Swap3"); // 3번 무기
@@ -97,11 +99,11 @@ public class Player2 : MonoBehaviour
         if (isDodge)
             moveVec = dodgeVec; //회피 할 때 움직이는 방향 =  회피하는 방향
 
-        if (isSwap || !isFireReady ) 
-            moveVec = Vector3.zero; // 교체할 때, 공격할 때 움직임은 0
-        
+        if (isSwap || isReload || !isFireReady ) 
+            moveVec = Vector3.zero; // 교체할 때, 장전할 때, 공격할 때 움직임은 0
 
-        transform.position += moveVec * speed * (rDown ? 1f : 0.3f) * Time.deltaTime; //rdown이 참이면 속도가 1, 거짓이면 0.3
+        if(!isBorder) //충돌하면 더이상 나아가지 않도록
+             transform.position += moveVec * speed * (rDown ? 1f : 0.3f) * Time.deltaTime; //rdown이 참이면 속도가 1, 거짓이면 0.3
 
         animator.SetBool("isWalk", moveVec != Vector3.zero); //vector3가 0,0,0이 아닐때 걷는 모션이 나온다.
         animator.SetBool("isRun", rDown); //run down 상태일때 달리는 모션이 나온다.
@@ -109,7 +111,18 @@ public class Player2 : MonoBehaviour
 
     void Turn()
     {
+        //#1. 키보드에 의한 회전
         transform.LookAt(transform.position + moveVec); //가는 방향으로 바라본다.
+
+        //#2. 마우스에 의한 회전
+        Ray ray = followCamera.ScreenPointToRay(Input.mousePosition); //스크린에서 주어진 위치(월드)로 ray를 쏜다
+        RaycastHit rayHit; //ray가 닿아서 저장됨??
+        if(Physics.Raycast(ray,out rayHit, 100)) // out = return처럼 반환값을 주어진 변수에 저장하는 키워드, 100 = 길이
+        {
+            Vector3 nextVec = rayHit.point - transform.position; //ray가 닿은 지점 - 플레이어 위치 = 마우스위치
+            nextVec.y = 0; //y축 고정(시선이 위로 안가도록)
+            transform.LookAt(transform.position + nextVec); // 플레이어위치 + 마우스위치를 보도록
+        }
     }
 
     void Jump()
@@ -208,13 +221,15 @@ public class Player2 : MonoBehaviour
             return;
 
         if (rlDown && !isJump && !isDodge && !isSwap && isFireReady) //r키를 누르고, 점프상태가 아니고, 회피상태가 아니고, 무기교체상태가 아니고, 공격이 준비됬을 때
+        {
             animator.SetTrigger("doReload"); //애니메이션 실행
-            isReload = true; 
+            isReload = true;
 
-        Invoke("ReloadOut", 2f);
+            Invoke("ReloadOut", 2f);
+        }
     }
 
-    void ReloadOut()
+    void ReloadOut() //장전 완료
     {
         int reAmmo = ammo < equipWeapon.maxAmmo ? ammo : equipWeapon.maxAmmo; // reammo = 최대보다 가진게 작을경우, 그냥 가진개수(ammo) 아니면 최대 개수
         equipWeapon.curAmmo = reAmmo; //현재 탄창은 장전개수만큼
@@ -260,7 +275,7 @@ public class Player2 : MonoBehaviour
     }
 
     void OnTriggerEnter(Collider other)
-    {
+   {
         if (other.tag == "Item")
         {
             Item item = other.GetComponent<Item>();
@@ -292,4 +307,24 @@ public class Player2 : MonoBehaviour
             Destroy(other.gameObject);
         }
     }
+    void FixedUpdate()
+    {
+        FreezeRotation();
+        StopToWall();
+    }
+
+    void FreezeRotation()
+    {
+        rigidbody.angularVelocity = Vector3.zero; //물체와 충돌시 자동회전하는거 막음
+    }
+
+    void StopToWall()
+    {
+        Debug.DrawRay(transform.position, transform.forward * 5, Color.green);
+        //scene 내에서 ray를 보여주는 함수 , 시작위치, 쏘는방향 * ray 길이, 색깔
+        isBorder = Physics.Raycast(transform.position, moveVec, 5, LayerMask.GetMask("Wall"));
+        //Raycast= ray를 쏘아 닿는 오브젝트를 감지하는 함수(위치,방향, 길이,wall이라는 레이마스크를 가진) 닿으면 true로 바뀜(bool이라서)
+    }
+
+
 }

@@ -9,6 +9,7 @@ TagManager:
   - Weapon
   - Melee
   - Wall
+  - Range
   layers:
   - Default
   - TransparentFX
@@ -18,10 +19,10 @@ TagManager:
   - UI
   - Floor
   - Weapon
-  - 
-  - 
-  - 
-  - 
+  - Bullet
+  - Player
+  - BulletCase
+  - Wall
   - 
   - 
   - 
