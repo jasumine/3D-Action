@@ -7,10 +7,11 @@ public class Player2 : MonoBehaviour
     public float speed; // 속도 조절
     public float jumppower; //점프 높이 조절
 
-    public GameObject[] weapons;
+    public GameObject[] weapons; //무기
     public bool[] hasWeapons;
     public GameObject[] grenades;
     public int hasGrenades; //폭탄
+    public GameObject grenadeObj; 
     public Camera followCamera;
 
     public int ammo; //탄환
@@ -29,6 +30,7 @@ public class Player2 : MonoBehaviour
     bool jDwon; //jump dwon 점프
     bool gDown; //g down 아이템 입수
     bool fDown; //fire down 공격
+    bool grDown; //granade down 폭탄
     bool rlDown; // reload down 장전
     bool sDown1; // swap down 1번장비
     bool sDown2; // swap down 2번장비
@@ -71,6 +73,7 @@ public class Player2 : MonoBehaviour
         Move();
         Turn();
         Jump();
+        Grenade();
         Attack();
         Reload();
         Dodge();
@@ -86,6 +89,7 @@ public class Player2 : MonoBehaviour
         jDwon = Input.GetButtonDown("Jump");//점프 누르는 즉시
         gDown = Input.GetButtonDown("Interaction"); //아이템 획득키 누르자마자 바로
         fDown = Input.GetButton("Fire1"); //공격 (마우스 좌클릭)
+        grDown = Input.GetButton("Fire2"); //폭탄 (마우스 우클릭)
         rlDown = Input.GetKeyDown(KeyCode.R);
         sDown1 = Input.GetButtonDown("Swap1"); // 1번 무기
         sDown2 = Input.GetButtonDown("Swap2"); // 2번 무기
@@ -192,6 +196,31 @@ public class Player2 : MonoBehaviour
     {
         if (other.tag == "Weapon") //벗어난 태그가 weapon일 경우
             nearObject = null; //nearobject에 null을 저장
+    }
+
+    void Grenade()
+    {
+        if (hasGrenades == 0)
+            return; //가진 폭탄 수가 없을 때 반환
+
+        if(grDown && !isReload && !isSwap) //장전하지않고, 무기를 바꾸지 않을때, 폭탄을 던짐
+        {
+            Ray ray = followCamera.ScreenPointToRay(Input.mousePosition); //스크린에서 주어진 위치(월드)로 ray를 쏜다
+            RaycastHit rayHit; //ray가 닿아서 저장됨??
+            if (Physics.Raycast(ray, out rayHit, 100)) // out = return처럼 반환값을 주어진 변수에 저장하는 키워드, 100 = 길이
+            {
+                Vector3 nextVec = rayHit.point - transform.position; //ray가 닿은 지점 - 플레이어 위치 = 마우스위치
+                nextVec.y = 10; //y축 지정
+
+                GameObject instantGrenade = Instantiate(grenadeObj, transform.position, transform.rotation); //플레이어 위치에 폭탄을 생성
+                Rigidbody rigidGrenade = instantGrenade.GetComponent<Rigidbody>();//생성된 폭탄에 rigidbody를 추가
+                rigidGrenade.AddForce(nextVec, ForceMode.Impulse); //nextvec방향으로 힘을 즉각적으로 가한다.
+                rigidGrenade.AddTorque(Vector3.back * 10, ForceMode.Impulse);//back방향으로 회전함
+
+                hasGrenades--; //버튼을 누르면 소지한 개수가 1개씩 없어지도록
+                grenades[hasGrenades].SetActive(false); //공전하는 개수도 1개씩 없어지도록
+            }
+        }
     }
 
     void Attack()

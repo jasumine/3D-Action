@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 4660654258310010666}
   m_Layer: 8
   m_Name: BulletHandGun
-  m_TagString: Range
+  m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
